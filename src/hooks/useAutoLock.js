@@ -11,7 +11,9 @@ export default function useAutoLock() {
       console.log("LOCK TRIGGERED:", reason);
       if (token && isUnlocked) {
         lockVault();
-        navigate("/lock");
+        if (window.location.pathname !== '/lock') {
+          navigate("/lock");
+        }
       }
     };
 

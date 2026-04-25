@@ -40,7 +40,7 @@ export default function VaultPage() {
   const closeModal = () => { setShowModal(false); setEditItem(null); };
 
   return (
-    <MainLayout onSearch={setSearch} onAddNew={role === 'ADMIN' ? openAdd : undefined}>
+    <MainLayout onSearch={setSearch} onAddNew={openAdd}>
       <div className="p-6 animate-fadeIn">
         {/* Page header */}
         <div className="flex items-center justify-between mb-6">

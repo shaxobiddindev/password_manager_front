@@ -20,8 +20,8 @@ export default function CredentialCard({ item, onEdit }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const { addToast } = useToastStore();
   const { deleteItem, getItemDetail, recordCopy } = useVaultStore();
-  const { role } = useAuthStore();
   const isAdmin = role === 'ADMIN';
+  const canEdit = item.isOwner || isAdmin;
   const revealTimer = useRef(null);
   const countdownInterval = useRef(null);
 
@@ -120,9 +120,20 @@ export default function CredentialCard({ item, onEdit }) {
           </div>
         </div>
 
-        <span className={`text-xs px-2 py-0.5 rounded-full font-mono shrink-0 ${catColor}`}>
-          {item.category || 'other'}
-        </span>
+        <div className="flex flex-col items-end gap-1 shrink-0">
+          <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono uppercase tracking-wider font-bold ${catColor}`}>
+            {item.category || 'other'}
+          </span>
+          {item.visibility === 'ADMIN_ONLY' ? (
+            <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-red-500/10 text-red-400 border border-red-500/20 font-bold flex items-center gap-1">
+              <i className="fas fa-lock text-[8px]"></i> Admin Only
+            </span>
+          ) : (
+            <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/20 font-bold flex items-center gap-1">
+              <i className="fas fa-users text-[8px]"></i> Shared
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Reuse Warning */}
@@ -182,23 +193,33 @@ export default function CredentialCard({ item, onEdit }) {
             </button>
           </div>
         </div>
+
+        {/* Owner Info */}
+        <div className="flex items-center justify-between px-1 pt-1">
+          <p className="text-[10px] text-slate-600 flex items-center gap-1">
+            <i className="fas fa-circle-user text-[8px]"></i>
+            Added by <span className={item.isOwner ? 'text-blue-400 font-bold' : 'text-slate-400'}>{item.isOwner ? 'You' : item.ownerName}</span>
+          </p>
+        </div>
       </div>
 
       {/* Actions */}
       <div className="mt-4 flex items-center gap-2 pt-3 border-t border-white/6">
-        <button
-          onClick={() => onEdit(item)}
-          className="flex-1 py-1.5 rounded-lg text-xs font-display font-semibold text-slate-400 hover:text-white hover:bg-white/8 transition-all"
-        >
-          Edit
-        </button>
+        {canEdit && (
+          <button
+            onClick={() => onEdit(item)}
+            className="flex-1 py-1.5 rounded-lg text-xs font-display font-semibold text-slate-400 hover:text-white hover:bg-white/8 transition-all"
+          >
+            Edit
+          </button>
+        )}
         <button
           onClick={() => handleCopy('Password')}
           className="flex-1 py-1.5 rounded-lg text-xs font-display font-semibold text-blue-400 hover:text-white hover:bg-blue-500/20 transition-all"
         >
           <i className="fas fa-bolt mr-1.5"></i> Quick Copy
         </button>
-        {isAdmin && (
+        {canEdit && (
           <button
             onClick={handleDeleteClick}
             className="p-2.5 rounded-xl border border-red-500/10 text-red-400 bg-red-500/5 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center shrink-0"

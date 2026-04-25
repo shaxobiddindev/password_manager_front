@@ -24,30 +24,28 @@ function PublicRoute({ children }) {
   return children;
 }
 
-function AnimatedRoutes() {
+function AppContent() {
   const location = useLocation();
   useAutoLock();
 
   return (
-    <div key={location.pathname}>
-      <Routes location={location}>
-        <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-        <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
-        <Route path="/lock" element={
-          <ProtectedRoute><LockPage /></ProtectedRoute>
-        } />
-        <Route path="/vault" element={
-          <ProtectedRoute requireUnlocked><VaultPage /></ProtectedRoute>
-        } />
-        <Route path="/vault/:category" element={
-          <ProtectedRoute requireUnlocked><VaultPage /></ProtectedRoute>
-        } />
-        <Route path="/settings" element={
-          <ProtectedRoute requireUnlocked><SettingsPage /></ProtectedRoute>
-        } />
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </div>
+    <Routes>
+      <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+      <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+      <Route path="/lock" element={
+        <ProtectedRoute><LockPage /></ProtectedRoute>
+      } />
+      <Route path="/vault" element={
+        <ProtectedRoute requireUnlocked><VaultPage /></ProtectedRoute>
+      } />
+      <Route path="/vault/:category" element={
+        <ProtectedRoute requireUnlocked><VaultPage /></ProtectedRoute>
+      } />
+      <Route path="/settings" element={
+        <ProtectedRoute requireUnlocked><SettingsPage /></ProtectedRoute>
+      } />
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
   );
 }
 
@@ -60,7 +58,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <AnimatedRoutes />
+      <AppContent />
       <ToastContainer />
     </BrowserRouter>
   );

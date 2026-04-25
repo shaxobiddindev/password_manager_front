@@ -31,6 +31,7 @@ export default function CredentialFormModal({ item, onClose }) {
     username: '',
     password: '',
     category: 'other',
+    visibility: 'ALL',
   });
 
   useEffect(() => {
@@ -41,6 +42,7 @@ export default function CredentialFormModal({ item, onClose }) {
         username: item.username || '',
         password: item.password || '',
         category: item.category || 'other',
+        visibility: item.visibility || 'ALL',
       });
     }
   }, [item]);
@@ -217,6 +219,34 @@ export default function CredentialFormModal({ item, onClose }) {
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Visibility */}
+          <div>
+            <label className="text-xs text-slate-400 font-display mb-1.5 block">Visibility</label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => set('visibility', 'ALL')}
+                className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border transition-all ${form.visibility === 'ALL' ? 'bg-blue-500/20 border-blue-500/40 text-blue-300' : 'bg-white/4 border-white/10 text-slate-500 hover:text-slate-300'}`}
+              >
+                <i className="fas fa-users text-[10px]"></i>
+                <span className="text-xs font-display font-semibold">Shared (All)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => set('visibility', 'ADMIN_ONLY')}
+                className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border transition-all ${form.visibility === 'ADMIN_ONLY' ? 'bg-red-500/20 border-red-500/40 text-red-300' : 'bg-white/4 border-white/10 text-slate-500 hover:text-slate-300'}`}
+              >
+                <i className="fas fa-lock text-[10px]"></i>
+                <span className="text-xs font-display font-semibold">Admin Only</span>
+              </button>
+            </div>
+            <p className="text-[10px] text-slate-600 mt-2 ml-1 italic">
+              {form.visibility === 'ALL' 
+                ? 'Everyone in the team can view and copy this.' 
+                : 'Only administrators can view or access this credential.'}
+            </p>
           </div>
         </div>
 
