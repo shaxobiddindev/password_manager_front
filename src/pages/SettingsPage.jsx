@@ -6,12 +6,12 @@ import { useVaultStore } from '../store/vaultStore';
 import api from '../api/axios';
 
 export default function SettingsPage() {
-  const { changePassword } = useAuthStore();
+  const { changePassword, autoLockTime, setAutoLockTime, saveSettings } = useAuthStore();
   const { addToast } = useToastStore();
   const { exportVault } = useVaultStore();
   const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' });
-  const [autoLock, setAutoLock] = useState(5);
   const [showPws, setShowPws] = useState({ current: false, next: false, confirm: false });
+  const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleChangePw = async () => {
@@ -35,6 +35,18 @@ export default function SettingsPage() {
       addToast('Vault exported', 'success');
     } catch (e) {
       addToast('Export failed', 'error');
+    }
+  };
+
+  const handleSaveSettings = async () => {
+    setSaving(true);
+    try {
+      await saveSettings();
+      addToast('Settings saved to cloud ✓', 'success');
+    } catch (e) {
+      addToast('Failed to save settings', 'error');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -99,16 +111,23 @@ export default function SettingsPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-slate-400 font-display">Lock after</span>
-                <span className="font-mono text-blue-400 text-sm">{autoLock} min</span>
+                <span className="font-mono text-blue-400 text-sm">{autoLockTime} min</span>
               </div>
               <input
-                type="range" min={1} max={60} value={autoLock}
-                onChange={(e) => setAutoLock(Number(e.target.value))}
+                type="range" min={1} max={60} value={autoLockTime}
+                onChange={(e) => setAutoLockTime(Number(e.target.value))}
                 className="w-full accent-blue-500"
               />
               <div className="flex justify-between text-xs text-slate-600 font-mono">
                 <span>1 min</span><span>60 min</span>
               </div>
+              <button
+                onClick={handleSaveSettings}
+                disabled={saving}
+                className="mt-4 w-full py-2.5 rounded-xl border border-blue-500/30 bg-blue-500/10 text-blue-400 font-display font-semibold text-sm hover:bg-blue-500/20 transition-all disabled:opacity-50"
+              >
+                {saving ? 'Saving...' : 'Save Timer Setting'}
+              </button>
             </div>
           </section>
 

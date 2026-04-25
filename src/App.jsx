@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useAuthStore } from './store/authStore';
 import LoginPage from './pages/LoginPage';
@@ -6,6 +6,7 @@ import LockPage from './pages/LockPage';
 import VaultPage from './pages/VaultPage';
 import SettingsPage from './pages/SettingsPage';
 import ToastContainer from './components/Toast';
+import useAutoLock from './hooks/useAutoLock';
 
 function ProtectedRoute({ children, requireUnlocked = false }) {
   const { token, isUnlocked } = useAuthStore();
@@ -14,12 +15,22 @@ function ProtectedRoute({ children, requireUnlocked = false }) {
   return children;
 }
 
+function PublicRoute({ children }) {
+  const { token, isUnlocked } = useAuthStore();
+  if (token) {
+    return <Navigate to={isUnlocked ? "/vault" : "/lock"} replace />;
+  }
+  return children;
+}
+
 function AnimatedRoutes() {
   const location = useLocation();
+  useAutoLock();
+
   return (
     <div key={location.pathname}>
       <Routes location={location}>
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
         <Route path="/lock" element={
           <ProtectedRoute><LockPage /></ProtectedRoute>
         } />

@@ -9,7 +9,8 @@ export default function LockPage() {
   const [shake, setShake] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { unlockVault, user, logout } = useAuthStore();
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const { unlockVault, user, logout, autoLockTime } = useAuthStore();
   const { addToast } = useToastStore();
   const navigate = useNavigate();
   const inputRef = useRef();
@@ -19,13 +20,23 @@ export default function LockPage() {
     setLoading(true);
     try {
       await unlockVault(password);
+      setFailedAttempts(0);
       addToast('Vault unlocked', 'success');
       navigate('/vault');
     } catch (e) {
+      const newAttempts = failedAttempts + 1;
+      setFailedAttempts(newAttempts);
       setShake(true);
       setPassword('');
       setTimeout(() => { setShake(false); inputRef.current?.focus(); }, 600);
-      addToast('Wrong master password', 'error');
+
+      if (newAttempts >= 3) {
+        addToast('Too many failed attempts. Logging out for security.', 'error');
+        logout();
+        navigate('/login');
+      } else {
+        addToast(`Wrong master password. ${3 - newAttempts} attempts remaining.`, 'error');
+      }
     } finally {
       setLoading(false);
     }
@@ -47,7 +58,7 @@ export default function LockPage() {
           </div>
           <h1 className="font-display text-2xl font-bold text-white">Vault Locked</h1>
           <p className="text-sm text-slate-500 mt-1">
-            {user ? `Signed in as ${user.username}` : 'Enter master password to unlock'}
+            {user ? `Signed in as ${user.login || user.email}` : 'Enter master password to unlock'}
           </p>
         </div>
 
@@ -74,6 +85,17 @@ export default function LockPage() {
               </button>
             </div>
           </div>
+
+          {failedAttempts > 0 && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 animate-pulse">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span className="text-[11px] font-bold uppercase tracking-wider">
+                {3 - failedAttempts} Attempts Remaining
+              </span>
+            </div>
+          )}
 
           <button
             onClick={handleUnlock}
@@ -104,7 +126,7 @@ export default function LockPage() {
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          Auto-locks after 5 minutes of inactivity
+          Auto-locks after {autoLockTime} minutes of inactivity
         </div>
       </div>
     </div>

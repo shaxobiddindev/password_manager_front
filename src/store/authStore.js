@@ -10,13 +10,14 @@ export const useAuthStore = create(
       role: null,
       isUnlocked: false,
       lockTimer: null,
+      autoLockTime: 5, // default 5 minutes
 
       login: async (username, password) => {
         const res = await api.post('/auth/login', { username, password });
-        const { token, login, email, role } = res.data;
+        const { token, login, email, role, autoLockTimer } = res.data;
         const user = { login, email, role };
         localStorage.setItem('token', token);
-        set({ user, token, role, isUnlocked: false });
+        set({ user, token, role, isUnlocked: false, autoLockTime: autoLockTimer || 5 });
         return res.data;
       },
 
@@ -39,19 +40,24 @@ export const useAuthStore = create(
       },
 
       startLockTimer: () => {
-        const { lockTimer } = get();
+        const { lockTimer, autoLockTime } = get();
         if (lockTimer) clearTimeout(lockTimer);
         const timer = setTimeout(() => {
           set({ isUnlocked: false, lockTimer: null });
-        }, 5 * 60 * 1000);
+        }, autoLockTime * 60 * 1000);
         set({ lockTimer: timer });
+      },
+
+      setAutoLockTime: (minutes) => {
+        set({ autoLockTime: minutes });
+        get().resetLockTimer();
       },
 
       fetchMe: async () => {
         try {
           const res = await api.get('/auth/me');
-          const { email, role, login } = res.data;
-          set({ user: { email, role, login }, role });
+          const { email, role, login, autoLockTimer } = res.data;
+          set({ user: { email, role, login }, role, autoLockTime: autoLockTimer || 5 });
           return res.data;
         } catch (e) {
           get().logout();
@@ -63,6 +69,11 @@ export const useAuthStore = create(
         await api.put('/auth/change-password', { oldPassword, newPassword });
       },
 
+      saveSettings: async () => {
+        const { autoLockTime } = get();
+        await api.put('/account/settings', { autoLockTimer: autoLockTime });
+      },
+
       resetLockTimer: () => {
         const { isUnlocked } = get();
         if (isUnlocked) get().startLockTimer();
@@ -70,7 +81,7 @@ export const useAuthStore = create(
     }),
     {
       name: 'auth-store',
-      partialize: (state) => ({ user: state.user, token: state.token, role: state.role }),
+      partialize: (state) => ({ user: state.user, token: state.token, role: state.role, autoLockTime: state.autoLockTime }),
     }
   )
 );

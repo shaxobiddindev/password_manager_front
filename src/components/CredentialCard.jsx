@@ -3,6 +3,7 @@ import { copyToClipboard } from '../utils/password';
 import { useToastStore } from '../store/toastStore';
 import { useVaultStore } from '../store/vaultStore';
 import { useAuthStore } from '../store/authStore';
+import ConfirmModal from './ConfirmModal';
 
 const CATEGORY_COLORS = {
   social: 'text-pink-400 bg-pink-400/10',
@@ -16,6 +17,7 @@ export default function CredentialCard({ item, onEdit }) {
   const [revealed, setRevealed] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
   const [hovering, setHovering] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const { addToast } = useToastStore();
   const { deleteItem, getItemDetail, recordCopy } = useVaultStore();
   const { role } = useAuthStore();
@@ -75,21 +77,30 @@ export default function CredentialCard({ item, onEdit }) {
     }
   };
 
-  const handleDelete = async () => {
-    if (!confirm(`Delete "${item.serviceName}"?`)) return;
-    await deleteItem(item.id);
-    addToast('Credential deleted', 'success');
+  const handleDeleteClick = () => setShowConfirm(true);
+
+  const confirmDelete = async () => {
+    try {
+      await deleteItem(item.id);
+      addToast('Deleted successfully', 'success');
+    } catch (e) {
+      addToast('Failed to delete', 'error');
+    } finally {
+      setShowConfirm(false);
+    }
   };
 
   const initials = item.serviceName?.slice(0, 2).toUpperCase() || '??';
   const catColor = CATEGORY_COLORS[item.category?.toLowerCase()] || CATEGORY_COLORS.other;
 
   return (
-    <div
-      className="card-hover relative group rounded-2xl border border-white/8 bg-[#111827] p-5 cursor-pointer select-none"
-      onMouseEnter={() => setHovering(true)}
-      onMouseLeave={() => setHovering(false)}
-    >
+    <>
+      <div
+        className="card-hover relative group rounded-2xl border border-white/8 bg-[#111827] p-5 cursor-pointer select-none"
+        onMouseEnter={() => setHovering(true)}
+        onMouseLeave={() => setHovering(false)}
+      >
+
       {/* Quick Copy Overlay */}
       {hovering && (
         <div
@@ -189,14 +200,23 @@ export default function CredentialCard({ item, onEdit }) {
         </button>
         {isAdmin && (
           <button
-            onClick={handleDelete}
-            className="p-1.5 rounded-lg text-xs text-red-400/50 hover:text-red-400 hover:bg-red-400/10 transition-all"
+            onClick={handleDeleteClick}
+            className="p-2.5 rounded-xl border border-red-500/10 text-red-400 bg-red-500/5 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center shrink-0"
           >
-            <TrashIcon />
+            <i className="fas fa-trash-can text-sm"></i>
           </button>
         )}
       </div>
     </div>
+
+      <ConfirmModal
+        isOpen={showConfirm}
+        title="Delete Credential"
+        message={`Are you sure you want to delete "${item.serviceName}"? This action cannot be undone.`}
+        onConfirm={confirmDelete}
+        onCancel={() => setShowConfirm(false)}
+      />
+    </>
   );
 }
 
