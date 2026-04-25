@@ -44,7 +44,7 @@ export default function LoginPage() {
 
       <div className="animate-fadeIn relative z-10 w-full max-w-sm">
         {/* Logo */}
-        <div className="text-center mb-10">
+        <div className="flex flex-col items-center text-center mb-10">
           <Logo size="lg" className="mb-5" />
           <h1 className="font-display text-2xl font-bold text-white">Company Vault</h1>
           <p className="text-sm text-slate-500 mt-1">Secure credential management</p>

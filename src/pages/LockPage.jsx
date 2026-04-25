@@ -56,7 +56,7 @@ export default function LockPage() {
       <div className="animate-fadeIn relative z-10 w-full max-w-sm">
         <div className="text-center mb-10">
           <div className="relative inline-block">
-            <Logo size="lg" className="mb-5" variant="emerald" />
+            <Logo size="lg" className="mb-5 mx-auto" variant="emerald" />
             <span className="absolute inset-0 rounded-3xl bg-emerald-500/20 animate-ping -z-10" />
           </div>
           <h1 className="font-display text-2xl font-bold text-white">Vault Locked</h1>
