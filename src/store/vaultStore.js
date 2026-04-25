@@ -83,5 +83,24 @@ export const useVaultStore = create((set, get) => ({
     await api.post(`/vault/${id}/copy`);
   },
 
+  fetchItemLogs: async (id) => {
+    const res = await api.get(`/audit/vault/${id}`);
+    return res.data;
+  },
+
+  fetchAllLogs: async () => {
+    const res = await api.get('/audit/all');
+    return res.data;
+  },
+
   setSelectedItem: (item) => set({ selectedItem: item }),
+
+  reset: () => set({ 
+    items: [], 
+    stats: null, 
+    selectedItem: null, 
+    hasFetched: false, 
+    hasFetchedStats: false, 
+    error: null 
+  }),
 }));

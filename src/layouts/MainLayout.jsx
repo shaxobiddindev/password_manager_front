@@ -118,6 +118,25 @@ export default function MainLayout({ children, onSearch, onAddNew }) {
               </div>
             )}
           </NavLink>
+          
+          {role === 'ADMIN' && (
+            <NavLink
+              to="/audit"
+              onClick={() => { if (window.innerWidth < 768) setSidebarOpen(false); }}
+              className={({ isActive }) =>
+                `relative group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-display font-medium transition-all ${isActive ? 'bg-purple-500/15 text-purple-300 border border-purple-500/20' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`
+              }
+            >
+              <i className="fas fa-shield-halved w-4 h-4 shrink-0 text-center"></i>
+              <span className={`transition-opacity duration-300 ${sidebarOpen ? 'opacity-100' : 'md:opacity-0 md:hidden'}`}>Audit Log</span>
+              {!sidebarOpen && (
+                <div className="fixed left-16 ml-2 px-2 py-1.5 bg-purple-600 text-white text-[10px] font-bold uppercase tracking-widest rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 whitespace-nowrap z-[100] shadow-xl border border-white/10">
+                  Audit Log
+                </div>
+              )}
+            </NavLink>
+          )}
+
           <button
             onClick={handleLock}
             className="relative group w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-display font-medium text-slate-500 hover:text-amber-400 hover:bg-amber-400/10 transition-all"
@@ -165,7 +184,7 @@ export default function MainLayout({ children, onSearch, onAddNew }) {
               {role}
             </span>
             {/* Add button — admin only */}
-            {role === 'ADMIN' && !isSettings && (
+            {!isSettings && (
               <button
                 onClick={onAddNew}
                 className="flex items-center justify-center w-9 h-9 sm:w-auto sm:px-4 sm:py-2 rounded-xl btn-primary text-sm font-display font-semibold text-white"
@@ -177,11 +196,19 @@ export default function MainLayout({ children, onSearch, onAddNew }) {
                 <span className="hidden sm:block">Add New</span>
               </button>
             )}
-            {/* Avatar */}
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20 border border-white/10 shrink-0">
-              <span className="text-xs font-display font-bold text-white">
-                {(user?.login || user?.email || 'U').slice(0, 2).toUpperCase()}
-              </span>
+            {/* User Info (Only on Settings page) & Avatar */}
+            <div className="flex items-center gap-3">
+              {isSettings && (
+                <div className="hidden md:flex flex-col items-end animate-fadeIn">
+                  <span className="text-xs font-display font-bold text-white leading-none">{user?.login || 'User'}</span>
+                  <span className="text-[10px] text-slate-500 font-mono leading-tight">{user?.email}</span>
+                </div>
+              )}
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20 border border-white/10 shrink-0">
+                <span className="text-xs font-display font-bold text-white">
+                  {(user?.login || user?.email || 'U').slice(0, 2).toUpperCase()}
+                </span>
+              </div>
             </div>
           </div>
         </header>

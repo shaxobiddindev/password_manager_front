@@ -15,7 +15,8 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     const isUnlock = err.config?.url?.includes('/auth/unlock');
-    if (err.response?.status === 401 && !isUnlock) {
+    const isLogin = err.config?.url?.includes('/auth/login');
+    if (err.response?.status === 401 && !isUnlock && !isLogin) {
       localStorage.removeItem('token');
       window.location.href = '/login';
     }

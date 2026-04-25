@@ -15,13 +15,13 @@ const CATEGORY_COLORS = {
 
 export default function CredentialCard({ item, onEdit }) {
   const [revealed, setRevealed] = useState(false);
+  const [revealedPassword, setRevealedPassword] = useState('');
   const [timeLeft, setTimeLeft] = useState(0);
   const [hovering, setHovering] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const { addToast } = useToastStore();
   const { deleteItem, getItemDetail, recordCopy } = useVaultStore();
-  const isAdmin = role === 'ADMIN';
-  const canEdit = item.isOwner || isAdmin;
+  const canEdit = item.isOwner;
   const revealTimer = useRef(null);
   const countdownInterval = useRef(null);
 
@@ -48,10 +48,10 @@ export default function CredentialCard({ item, onEdit }) {
     if (revealTimer.current) clearTimeout(revealTimer.current);
     if (countdownInterval.current) clearInterval(countdownInterval.current);
 
-    if (!revealed && !item.password) {
+    if (!revealed && !revealedPassword) {
       try {
         const fullItem = await getItemDetail(item.id);
-        item.password = fullItem.password; // Cache it
+        setRevealedPassword(fullItem.password);
       } catch (e) {
         addToast('Failed to fetch password', 'error');
         return;
@@ -124,15 +124,22 @@ export default function CredentialCard({ item, onEdit }) {
           <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono uppercase tracking-wider font-bold ${catColor}`}>
             {item.category || 'other'}
           </span>
-          {item.visibility === 'ADMIN_ONLY' ? (
-            <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-red-500/10 text-red-400 border border-red-500/20 font-bold flex items-center gap-1">
-              <i className="fas fa-lock text-[8px]"></i> Admin Only
-            </span>
-          ) : (
-            <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/20 font-bold flex items-center gap-1">
-              <i className="fas fa-users text-[8px]"></i> Shared
-            </span>
-          )}
+          <div className="flex flex-wrap justify-end gap-1">
+            {item.shareWithAdmins && (
+              <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-red-500/10 text-red-400 border border-red-500/20 font-bold flex items-center gap-1">
+                <i className="fas fa-user-shield text-[8px]"></i> Admin
+              </span>
+            )}
+            {item.sharedWithUsernames?.length > 0 ? (
+              <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/20 font-bold flex items-center gap-1">
+                <i className="fas fa-users text-[8px]"></i> {item.sharedWithUsernames.length} User{item.sharedWithUsernames.length !== 1 ? 's' : ''}
+              </span>
+            ) : !item.shareWithAdmins ? (
+              <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-slate-500/10 text-slate-500 border border-slate-500/20 font-bold flex items-center gap-1">
+                <i className="fas fa-lock text-[8px]"></i> Private
+              </span>
+            ) : null}
+          </div>
         </div>
       </div>
 
@@ -168,7 +175,7 @@ export default function CredentialCard({ item, onEdit }) {
           <div className="min-w-0 flex-1">
             <p className="text-xs text-slate-500 mb-0.5">Password</p>
             <p className={`text-sm font-mono truncate transition-all duration-300 ${revealed ? 'text-white' : 'text-slate-600'}`}>
-              {revealed ? item.password : '••••••••••••'}
+              {revealed ? revealedPassword : '••••••••••••'}
             </p>
             {revealed && timeLeft > 0 && (
               <span className="ml-2 text-[10px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded-md font-mono border border-blue-500/20 animate-pulse">

@@ -27,7 +27,7 @@ const colors = {
 export default function ToastContainer() {
   const { toasts, removeToast } = useToastStore();
   return (
-    <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-2">
+    <div className="fixed bottom-4 right-4 z-[9999] flex flex-col-reverse gap-2">
       {toasts.map((t) => (
         <div
           key={t.id}

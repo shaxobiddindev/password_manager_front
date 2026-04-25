@@ -12,7 +12,8 @@ export default function LoginPage() {
   const { addToast } = useToastStore();
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    if (e) e.preventDefault(); // Prevent page refresh
     if (!form.username || !form.password) return;
     setLoading(true);
     try {
@@ -20,6 +21,7 @@ export default function LoginPage() {
       addToast('Welcome back!', 'success');
       navigate('/lock');
     } catch (e) {
+      setForm(p => ({ ...p, password: '' })); // Clear password on error
       const data = e.response?.data;
       if (data?.details && typeof data.details === 'object') {
         const errorMsgs = Object.values(data.details).join(', ');
@@ -48,8 +50,11 @@ export default function LoginPage() {
           <p className="text-sm text-slate-500 mt-1">Secure credential management</p>
         </div>
 
-        {/* Card */}
-        <div className="rounded-2xl border border-white/8 bg-[#0d1424]/80 backdrop-blur-xl p-8 space-y-5">
+        {/* Card Form */}
+        <form 
+          onSubmit={handleLogin}
+          className="rounded-2xl border border-white/8 bg-[#0d1424]/80 backdrop-blur-xl p-8 space-y-5"
+        >
           <div>
             <label className="text-xs text-slate-400 font-display mb-2 block">Username</label>
             <input
@@ -57,7 +62,6 @@ export default function LoginPage() {
               placeholder="Enter username"
               value={form.username}
               onChange={(e) => setForm((p) => ({ ...p, username: e.target.value }))}
-              onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
               autoFocus
             />
           </div>
@@ -70,7 +74,6 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 value={form.password}
                 onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
-                onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
               />
               <button
                 type="button"
@@ -83,7 +86,7 @@ export default function LoginPage() {
           </div>
 
           <button
-            onClick={handleLogin}
+            type="submit"
             disabled={loading}
             className="w-full py-3 rounded-xl btn-primary font-display font-semibold text-white text-sm disabled:opacity-50 transition-all"
           >
@@ -97,7 +100,7 @@ export default function LoginPage() {
               </span>
             ) : 'Sign In'}
           </button>
-        </div>
+        </form>
 
         <div className="text-center mt-6">
           <p className="text-xs text-slate-500 font-display">

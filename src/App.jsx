@@ -6,12 +6,14 @@ import RegisterPage from './pages/RegisterPage';
 import LockPage from './pages/LockPage';
 import VaultPage from './pages/VaultPage';
 import SettingsPage from './pages/SettingsPage';
+import AuditPage from './pages/AuditPage';
 import ToastContainer from './components/Toast';
 import useAutoLock from './hooks/useAutoLock';
 
-function ProtectedRoute({ children, requireUnlocked = false }) {
-  const { token, isUnlocked } = useAuthStore();
+function ProtectedRoute({ children, requireUnlocked = false, adminOnly = false }) {
+  const { token, isUnlocked, role } = useAuthStore();
   if (!token) return <Navigate to="/login" replace />;
+  if (adminOnly && role !== 'ADMIN') return <Navigate to="/vault" replace />;
   if (requireUnlocked && !isUnlocked) return <Navigate to="/lock" replace />;
   return children;
 }
@@ -43,6 +45,9 @@ function AppContent() {
       } />
       <Route path="/settings" element={
         <ProtectedRoute requireUnlocked><SettingsPage /></ProtectedRoute>
+      } />
+      <Route path="/audit" element={
+        <ProtectedRoute adminOnly><AuditPage /></ProtectedRoute>
       } />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>

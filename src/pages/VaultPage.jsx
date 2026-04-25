@@ -163,7 +163,11 @@ export default function VaultPage() {
       </div>
 
       {/* Modal */}
-      {showModal && <CredentialFormModal item={editItem} onClose={closeModal} />}
+      <CredentialFormModal 
+        isOpen={showModal} 
+        item={editItem} 
+        onClose={closeModal} 
+      />
     </MainLayout>
   );
 }

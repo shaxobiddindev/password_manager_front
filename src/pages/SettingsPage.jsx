@@ -6,7 +6,7 @@ import { useVaultStore } from '../store/vaultStore';
 import api from '../api/axios';
 
 export default function SettingsPage() {
-  const { changePassword, autoLockTime, setAutoLockTime, saveSettings } = useAuthStore();
+  const { user, role, changePassword, autoLockTime, setAutoLockTime, saveSettings } = useAuthStore();
   const { addToast } = useToastStore();
   const { exportVault } = useVaultStore();
   const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' });
@@ -152,14 +152,17 @@ export default function SettingsPage() {
 
           {/* Account Info */}
           <section className="rounded-2xl border border-white/8 bg-[#111827] p-6">
-            <h3 className="font-display font-semibold text-white mb-4">Account</h3>
+            <h3 className="font-display font-semibold text-white mb-4">Account Profile</h3>
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
-                {(useAuthStore.getState().user?.login || useAuthStore.getState().user?.email || 'U').slice(0, 2).toUpperCase()}
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-blue-500/20 border border-white/10">
+                {(user?.login || user?.email || 'U').slice(0, 2).toUpperCase()}
               </div>
               <div>
-                <p className="font-display font-semibold text-white">{useAuthStore.getState().user?.login || useAuthStore.getState().user?.email}</p>
-                <p className={`text-xs mt-0.5 font-mono ${useAuthStore.getState().role === 'ADMIN' ? 'text-purple-400' : 'text-slate-400'}`}>{useAuthStore.getState().role}</p>
+                <p className="font-display font-bold text-white text-lg leading-tight">{user?.login || 'User'}</p>
+                <p className="text-sm text-slate-500 font-mono mb-1">{user?.email}</p>
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold uppercase tracking-wider ${role === 'ADMIN' ? 'bg-purple-500/15 text-purple-300 border border-purple-500/20' : 'bg-slate-500/15 text-slate-400 border border-slate-500/20'}`}>
+                  {role}
+                </span>
               </div>
             </div>
           </section>

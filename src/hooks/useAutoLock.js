@@ -24,17 +24,10 @@ export default function useAutoLock() {
       }
     };
 
-    // WINDOW BLUR
-    const handleBlur = () => {
-      handleLock("WINDOW BLUR");
-    };
-
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("blur", handleBlur);
 
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("blur", handleBlur);
     };
   }, [token, isUnlocked, lockVault, navigate]);
 }

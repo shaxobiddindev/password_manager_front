@@ -15,7 +15,8 @@ export default function LockPage() {
   const navigate = useNavigate();
   const inputRef = useRef();
 
-  const handleUnlock = async () => {
+  const handleUnlock = async (e) => {
+    if (e) e.preventDefault(); // Prevent page refresh
     if (!password) return;
     setLoading(true);
     try {
@@ -28,7 +29,7 @@ export default function LockPage() {
       const newAttempts = failedAttempts + 1;
       setFailedAttempts(newAttempts);
       setShake(true);
-      setPassword('');
+      setPassword(''); // Clear password on error
       setTimeout(() => { setShake(false); inputRef.current?.focus(); }, 600);
 
       if (newAttempts >= 3) {
@@ -64,7 +65,10 @@ export default function LockPage() {
           </p>
         </div>
 
-        <div className={`rounded-2xl border border-white/8 bg-[#0d1424]/80 backdrop-blur-xl p-8 space-y-5 ${shake ? 'animate-shake' : ''}`}>
+        <form 
+          onSubmit={handleUnlock}
+          className={`rounded-2xl border border-white/8 bg-[#0d1424]/80 backdrop-blur-xl p-8 space-y-5 ${shake ? 'animate-shake' : ''}`}
+        >
           <div>
             <label className="text-xs text-slate-400 font-display mb-2 block">Master Password</label>
             <div className="relative">
@@ -75,7 +79,6 @@ export default function LockPage() {
                 placeholder="••••••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleUnlock()}
                 autoFocus
               />
               <button
@@ -100,7 +103,7 @@ export default function LockPage() {
           )}
 
           <button
-            onClick={handleUnlock}
+            type="submit"
             disabled={loading || !password}
             className="w-full py-3 rounded-xl font-display font-semibold text-white text-sm disabled:opacity-40 transition-all"
             style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}
@@ -117,12 +120,13 @@ export default function LockPage() {
           </button>
 
           <button
+            type="button"
             onClick={() => { logout(); navigate('/login'); }}
             className="w-full text-xs text-slate-500 hover:text-slate-300 transition-colors font-display"
           >
             Sign in with different account
           </button>
-        </div>
+        </form>
 
         <div className="mt-4 flex items-center justify-center gap-2 text-xs text-slate-600">
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import api from '../api/axios';
+import { useVaultStore } from './vaultStore';
 
 export const useAuthStore = create(
   persist(
@@ -28,6 +29,7 @@ export const useAuthStore = create(
 
       logout: () => {
         localStorage.removeItem('token');
+        useVaultStore.getState().reset();
         set({ user: null, token: null, role: null, isUnlocked: false });
       },
 
@@ -41,6 +43,7 @@ export const useAuthStore = create(
       lockVault: () => {
         const { lockTimer } = get();
         if (lockTimer) clearTimeout(lockTimer);
+        useVaultStore.getState().reset();
         set({ isUnlocked: false, lockTimer: null });
       },
 
@@ -82,6 +85,16 @@ export const useAuthStore = create(
       resetLockTimer: () => {
         const { isUnlocked } = get();
         if (isUnlocked) get().startLockTimer();
+      },
+      
+      checkUser: async (query) => {
+        const res = await api.get(`/auth/check-user?query=${encodeURIComponent(query)}`);
+        return res.data;
+      },
+
+      searchUsers: async (query) => {
+        const res = await api.get(`/auth/search-users?query=${encodeURIComponent(query)}`);
+        return res.data;
       },
     }),
     {
