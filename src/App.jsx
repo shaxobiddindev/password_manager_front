@@ -28,7 +28,16 @@ function PublicRoute({ children }) {
 
 function AppContent() {
   const location = useLocation();
+  const { _hasHydrated } = useAuthStore();
   useAutoLock();
+
+  if (!_hasHydrated) {
+    return (
+      <div className="min-h-screen bg-[#080c14] flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <Routes>

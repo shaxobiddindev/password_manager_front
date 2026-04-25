@@ -10,8 +10,11 @@ export const useAuthStore = create(
       token: null,
       role: null,
       isUnlocked: false,
+      _hasHydrated: false,
       lockTimer: null,
       autoLockTime: 5, // default 5 minutes
+
+      setHasHydrated: (state) => set({ _hasHydrated: state }),
 
       register: async (userData) => {
         const res = await api.post('/auth/register', userData);
@@ -100,6 +103,9 @@ export const useAuthStore = create(
     {
       name: 'auth-store',
       partialize: (state) => ({ user: state.user, token: state.token, role: state.role, autoLockTime: state.autoLockTime }),
+      onRehydrateStorage: () => (state) => {
+        state.setHasHydrated(true);
+      }
     }
   )
 );
