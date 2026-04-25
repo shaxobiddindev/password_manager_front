@@ -24,6 +24,7 @@ export default function LockPage() {
       addToast('Vault unlocked', 'success');
       navigate('/vault');
     } catch (e) {
+      const data = e.response?.data;
       const newAttempts = failedAttempts + 1;
       setFailedAttempts(newAttempts);
       setShake(true);
@@ -35,7 +36,8 @@ export default function LockPage() {
         logout();
         navigate('/login');
       } else {
-        addToast(`Wrong master password. ${3 - newAttempts} attempts remaining.`, 'error');
+        const errorMsg = data?.message || 'Wrong master password';
+        addToast(`${errorMsg}. ${3 - newAttempts} attempts remaining.`, 'error');
       }
     } finally {
       setLoading(false);

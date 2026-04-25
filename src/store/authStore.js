@@ -12,6 +12,11 @@ export const useAuthStore = create(
       lockTimer: null,
       autoLockTime: 5, // default 5 minutes
 
+      register: async (userData) => {
+        const res = await api.post('/auth/register', userData);
+        return res.data;
+      },
+
       login: async (username, password) => {
         const res = await api.post('/auth/login', { username, password });
         const { token, login, email, role, autoLockTimer } = res.data;

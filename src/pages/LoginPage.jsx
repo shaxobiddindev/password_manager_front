@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useToastStore } from '../store/toastStore';
 import Logo from '../components/Logo';
@@ -20,7 +20,13 @@ export default function LoginPage() {
       addToast('Welcome back!', 'success');
       navigate('/lock');
     } catch (e) {
-      addToast(e.response?.data?.message || 'Invalid credentials', 'error');
+      const data = e.response?.data;
+      if (data?.details && typeof data.details === 'object') {
+        const errorMsgs = Object.values(data.details).join(', ');
+        addToast(errorMsgs, 'error');
+      } else {
+        addToast(data?.message || 'Login failed', 'error');
+      }
     } finally {
       setLoading(false);
     }
@@ -93,7 +99,16 @@ export default function LoginPage() {
           </button>
         </div>
 
-        <p className="text-center text-xs text-slate-600 mt-6">Protected by end-to-end encryption</p>
+        <div className="text-center mt-6">
+          <p className="text-xs text-slate-500 font-display">
+            Don't have an account?{' '}
+            <Link to="/register" className="text-blue-400 hover:text-blue-300 font-bold transition-colors">
+              Create account
+            </Link>
+          </p>
+        </div>
+
+        <p className="text-center text-xs text-slate-600 mt-4">Protected by end-to-end encryption</p>
       </div>
     </div>
   );

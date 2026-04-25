@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from
 import { useEffect } from 'react';
 import { useAuthStore } from './store/authStore';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import LockPage from './pages/LockPage';
 import VaultPage from './pages/VaultPage';
 import SettingsPage from './pages/SettingsPage';
@@ -31,6 +32,7 @@ function AnimatedRoutes() {
     <div key={location.pathname}>
       <Routes location={location}>
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+        <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
         <Route path="/lock" element={
           <ProtectedRoute><LockPage /></ProtectedRoute>
         } />
